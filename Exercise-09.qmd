@@ -1,0 +1,277 @@
+---
+title: "Exercise-09"
+format: html
+editor: visual
+---
+
+## Coding challenge: **Practice Simple Linear Regression**
+
+**Step 1:** Do a quick exploratory data analysis where you generate the five-number summary (median, minimum and maximum and 1st and 3rd quartile values), plus mean and standard deviation, for each quantitative variable.
+
+```{r, eval = FALSE, warning = FALSE}
+library(tidyverse)
+install.packages("skimr")
+library(skimr)
+f <- "https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/Street_et_al_2017.csv"
+d <- read_csv(f, col_names = TRUE)
+head(d)
+summary_stats <- summary(d)
+print(summary_stats)
+```
+
+**Step 2:** From this dataset, plot brain size (**ECV**) as a function of social group size (**Group_size**), longevity (**Longevity**), juvenile period length (**Weaning**), and reproductive lifespan (**Repro_lifespan**).
+
+```{r, eval = FALSE, warning = FALSE}
+library(tidyverse)
+
+# Scatter plot for brain size vs. social group size 
+ggplot(d, aes(x = Group_size, y = ECV)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", na.rm = TRUE) +
+  labs(title = "Brain Size vs. Social Group Size",
+       x = "Social Group Size",
+       y = "Brain Size (ECV)")
+
+# Scatter plot for brain size vs. longevity 
+ggplot(d, aes(x = Longevity, y = ECV)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", na.rm = TRUE) +
+  labs(title = "Brain Size vs. Longevity",
+       x = "Longevity",
+       y = "Brain Size (ECV)")
+
+# Scatter plot for brain size vs. juvenile period length 
+ggplot(d, aes(x = Weaning, y = ECV)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", na.rm = TRUE) +
+  labs(title = "Brain Size vs. Juvenile Period Length",
+       x = "Juvenile Period Length",
+       y = "Brain Size (ECV)")
+
+# Scatter plot for brain size vs. reproductive lifespan 
+ggplot(d, aes(x = Repro_lifespan, y = ECV)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", na.rm = TRUE) +
+  labs(title = "Brain Size vs. Reproductive Lifespan",
+       x = "Reproductive Lifespan",
+       y = "Brain Size (ECV)")
+```
+
+**Step 3**:Derive by hand the ordinary least squares regression coefficients B1 and B0 for ECV as a function of social group size.
+
+```{r, eval = FALSE, warning = FALSE}
+library(tidyverse)
+f <- "https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/Street_et_al_2017.csv"
+d <- read_csv(f, col_names = TRUE)
+ head(d)
+ names(d)
+(s <- d %>% drop_na(ECV, Group_size) %>%
+     mutate(logECV = log(ECV), logGS = log(Group_size)))
+ 
+ # Dervice by hand ordinary least square fitting B1 nad B0 for log(ECV) ~logBody_mass)
+ 
+# CALCULATE B1
+ 
+(b1 <- cov(s$logECV, s$logGS)/var(s$logGS))
+
+#Calculate B0
+(b0 <- mean(s$logECV)- b1* mean(s$logGS))
+ 
+```
+
+Step 4: Confirm that you get the same results using the `lm()` function.
+
+```{r, eval = FALSE, warning = FALSE}
+(m <- lm(logECV ~logGS, data = s))
+summary(m)
+```
+
+**The results obtained from both the `lm()` function and manual calculations yield the same result.**
+
+**Step 5**: Repeat the analysis above for three different major radiations of primates - “catarrhines”, “platyrrhines”, and “strepsirhines”) separately. These are stored in the variable **Taxonomic_group**. Do your regression coefficients differ among groups? How might you determine this?
+
+```{r, eval = FALSE, warning = FALSE}
+library(tidyverse)
+
+# Load the dataset
+f <- "https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/Street_et_al_2017.csv"
+d <- read_csv(f, col_names = TRUE)
+
+# Display the first few rows of the dataset and column names
+head(d)
+names(d)
+
+# Create a new dataframe by removing missing variables
+s <- d %>% drop_na(ECV, Group_size) %>%
+  mutate(logECV = log(ECV), logGS = log(Group_size))
+
+# Subset data for each taxonomic group
+strepsirhini_data <- s %>% filter(Taxonomic_group == "Strepsirhini")
+catarrhini_data <- s %>% filter(Taxonomic_group == "Catarrhini")
+platyrrhini_data <- s %>% filter(Taxonomic_group == "Platyrrhini")
+
+# Fit linear regression models for each taxonomic group
+model_strepsirhini <- lm(logECV ~ logGS, data = strepsirhini_data)
+model_catarrhini <- lm(logECV ~ logGS, data = catarrhini_data)
+model_platyrrhini <- lm(logECV ~ logGS, data = platyrrhini_data)
+
+# Display regression summaries
+summary(model_strepsirhini)
+summary(model_catarrhini)
+summary(model_platyrrhini)
+
+# Compare regression coefficients among groups
+coefficients_data <- data.frame(
+  Taxonomic_group = c("Strepsirhini", "Catarrhini", "Platyrrhini"),
+  B1 = c(coef(model_strepsirhini)["logGS"], coef(model_catarrhini)["logGS"], coef(model_platyrrhini)["logGS"])
+)
+coefficients_data
+
+# Perform ANOVA to test if regression coefficients differ among groups
+anova_result <- aov(logECV ~ Taxonomic_group * logGS, data = s)
+summary(anova_result)
+
+```
+
+**The** **difference of regression coefficient among three taxonomic groups has been determined using ANOVA. The ANOVA analysis revealed statistically significant variations in regression coefficients among the three taxonomic groups, as indicated by a (F(1,33) = 16.86 , p =0.0002).**
+
+**Step 6:** For your first regression of ECV on social group size, calculate the standard error for the slope coefficient, the 95% CI, and the *p* value associated with this coefficient by hand. Also extract this same information from the results of running the `lm()` function.
+
+```{r, eval = FALSE, warning = FALSE}
+library(tidyverse)
+f <- "https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/Street_et_al_2017.csv"
+d <- read_csv(f, col_names = TRUE)
+ head(d)
+ names(d)
+(s <- d %>% drop_na(ECV, Group_size) %>%
+     mutate(logECV = log(ECV), logGS = log(Group_size)))
+
+# Manually calculate standard error, 95% CI, and p-value
+n <- nrow(s)  #
+(t_value <- qt(0.975, df = n - 2))  # 2-tailed t-value for 95% CI
+
+# Calculate B1
+ 
+(b1 <- cov(s$logECV, s$logGS)/var(s$logGS))
+
+#Calculate B0
+(b0 <- mean(s$logECV)- b1* mean(s$logGS))
+# Calculate residuals
+residuals <- s$logECV - (b0 + b1 * s$logGS)
+
+# Standard error
+se_by_hand <- sqrt(sum(residuals^2) / (n - 2)) / sqrt(sum((s$logGS - mean(s$logGS))^2))
+
+# 95% Confidence Interval
+ci_by_hand <- c(b1 - t_value * se_by_hand, b1 + t_value * se_by_hand)
+
+# P-value
+t_stat <- b1 / se_by_hand
+p_value_by_hand <- 2 * pt(-abs(t_stat), df = n - 2)
+
+# Display results calculated by hand
+cat("\nResults calculated by hand:\n")
+cat("Standard Error of Coefficient (B1):", se_by_hand, "\n")
+cat("95% Confidence Interval for Coefficient (B1): [", ci_by_hand[1], ",", ci_by_hand[2], "]\n")
+cat("P-value for Coefficient (B1):", p_value_by_hand, "\n")
+
+
+# Extract coefficient standard error, 95% CI, and p-value from lm() results
+
+# Fit linear regression model
+model <- lm(logECV ~ logGS, data = s)
+
+# Calculate SE, 95%CI and p-value using lm()
+
+se_coef <- summary(model)$coef[2, "Std. Error"]
+ci <- confint(model)[2, ]
+p_value <- summary(model)$coef[2, "Pr(>|t|)"]
+
+# Display lm() results
+cat("Results from lm() function:\n")
+cat("Standard Error of Coefficient (B1):", se_coef, "\n")
+cat("95% Confidence Interval for Coefficient (B1): [", ci[1], ",", ci[2], "]\n")
+cat("P-value for Coefficient (B1):", p_value, "\n")
+
+```
+
+**The manually calculated values for standard error, 95% confidence interval, and p-value using the formula match with the values obtained using the `lm()` function. This consistency indicates that both methods are producing equivalent results for the slope coefficient.**
+
+**Step 7**: Use a permutation approach with 1000 permutations to generate a null sampling distribution for the **slope coefficient**. What is it that you need to permute? What is the p value associated with your original slope coefficient? You can use either the percentile method (i.e., using quantiles from the actual permutation-based null sampling distribution) or a theory-based method (i.e., using the standard deviation of the permutation-based null sampling distribution as the estimate of the standard error, along with a normal or t distribution), or both, to calculate this p value.
+
+```{r, eval = FALSE, warning = FALSE}
+# Set the number of permutations
+n <- 1000
+
+# Store the original slope coefficient
+b1 = 0.71
+original_b1 <- b1
+
+# Initialize an empty vector to store permuted slope coefficients
+permuted_b1 <- numeric(n)
+
+# Perform permutations and calculate slope coefficients
+set.seed(123)  # Set seed for reproducibility
+for (i in 1:n) {
+  # Permute the response variable
+  permuted_response <- sample(transformed_data$logECV)
+  
+  # Fit a linear model with permuted data
+  permuted_model <- lm(permuted_response ~ transformed_data$logGS)
+  
+  # Store the permuted slope coefficient
+  permuted_b1[i] <- coef(permuted_model)[2]
+}
+# Calculate the p-value using the percentile method
+p_value_percentile <- sum(abs(permuted_b1) >= abs(original_b1)) / n
+
+cat("P-value (Percentile Method):", p_value_percentile, "\n")
+
+```
+
+**In a permutation approach, the idea is to randomly shuffle or permute the values of the response variable (in this case, `logECV`) while keeping the predictor variable (in this case, `logGS`) unchanged. This process helps generate a null sampling distribution under the assumption that there is no true relationship between the response and predictor variables.In the steps above, we used the percentile** **method which involves comparing the observed statistic (in this case, the absolute value of the original slope coefficient) with the distribution of values obtained from permutations. The proportion of permuted values as extreme or more extreme than the observed value provides the p-value. We obtain the p-value of 0.00 which suggests a significant association between the variables (ECV and group_size).**
+
+**Step 8:** Use bootstrapping to generate a 95% CI for your estimate of the slope coefficient using both the percentile method and the theory-based method (i.e., using on the standard deviation of the bootstrapped sampling distribution as an estimate of the standard error). Do these CIs suggest that your slope coefficient is different from zero?
+
+```{r, eval = FALSE, warning = FALSE}
+library(tidyverse)
+f <- "https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/Street_et_al_2017.csv"
+d <- read_csv(f, col_names = TRUE)
+ head(d)
+ names(d)
+(s <- d %>% drop_na(ECV, Group_size) %>%
+     mutate(logECV = log(ECV), logGS = log(Group_size)))
+# Fit linear regression model
+model <- lm(logECV ~ logGS, data = s)
+
+n <- 1000
+
+# Initialize an empty vector to store bootstrapped slope coefficients
+bootstrapped_b1 <- numeric(n)
+
+# Perform bootstrapping and calculate slope coefficients
+set.seed(123)  # Set seed for reproducibility
+for (i in 1:n) {
+  # Generate a bootstrap sample
+  bootstrap_sample <- s[sample(nrow(s), replace = TRUE), ]
+  
+  # Fit a linear model with the bootstrap sample
+  bootstrap_model <- lm(logECV ~ logGS, data = bootstrap_sample)
+  
+  # Store the bootstrapped slope coefficient
+  bootstrapped_b1[i] <- coef(bootstrap_model)[2]
+}
+
+# Calculate 95% CI using the percentile method
+ci_percentile <- quantile(bootstrapped_b1, c(0.025, 0.975))
+
+# Calculate 95% CI using the theory-based method
+se_bootstrapped <- sd(bootstrapped_b1)
+ci_theory <- c(mean(bootstrapped_b1) - 1.96 * se_bootstrapped, mean(bootstrapped_b1) + 1.96 * se_bootstrapped)
+
+cat("95% CI (Percentile Method):", ci_percentile, "\n")
+cat("95% CI (Theory-Based Method):", ci_theory, "\n")
+
+```
+
+-   **The 95% CI using Percentile Method are (0.5770865, 0.8253781), and the 95% CI (Theory-Based Method) are (0.5823355, 0.8288691)**. **Since the confidence intervals using both percentile method and theory based method do not include zero, it suggests that the slope coefficient is significantly different from zero. This means that we have evidence to reject the null hypothesis that the true value of the slope coefficient is zero.**
