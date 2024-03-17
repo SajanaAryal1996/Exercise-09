@@ -58,7 +58,7 @@ ggplot(d, aes(x = Repro_lifespan, y = ECV)) +
        y = "Brain Size (ECV)")
 ```
 
-**There is linear positive relationship of brain size (ECV) with social group size (Group_size), longevity (Longevity), juvenile period length (Weaning), and reproductive lifespan (Repro_lifespan).**
+**There is positive linear relationship of brain size (ECV) with social group size (Group_size), longevity (Longevity), juvenile period length (Weaning), and reproductive lifespan (Repro_lifespan).**
 
 **Step 3**:Derive by hand the ordinary least squares regression coefficients B1 and B0 for ECV as a function of social group size.
 
