@@ -57,6 +57,8 @@ ggplot(d, aes(x = Repro_lifespan, y = ECV)) +
        y = "Brain Size (ECV)")
 ```
 
+**There is linear positive relationship of brain size (ECV) with social group size (Group_size), longevity (Longevity), juvenile period length (Weaning), and reproductive lifespan (Repro_lifespan).**
+
 **Step 3**:Derive by hand the ordinary least squares regression coefficients B1 and B0 for ECV as a function of social group size.
 
 ```{r, eval = FALSE, warning = FALSE}
@@ -86,7 +88,7 @@ Step 4: Confirm that you get the same results using the `lm()` function.
 summary(m)
 ```
 
-**The results obtained from both the `lm()` function and manual calculations yield the same result.**
+**The both `lm()` function and manual calculations yield the same result.**
 
 **Step 5**: Repeat the analysis above for three different major radiations of primates - “catarrhines”, “platyrrhines”, and “strepsirhines”) separately. These are stored in the variable **Taxonomic_group**. Do your regression coefficients differ among groups? How might you determine this?
 
@@ -202,7 +204,6 @@ cat("P-value for Coefficient (B1):", p_value, "\n")
 ```{r, eval = FALSE, warning = FALSE}
 # Set the number of permutations
 n <- 1000
-
 # Store the original slope coefficient
 b1 = 0.71
 original_b1 <- b1
@@ -214,10 +215,10 @@ permuted_b1 <- numeric(n)
 set.seed(123)  # Set seed for reproducibility
 for (i in 1:n) {
   # Permute the response variable
-  permuted_response <- sample(transformed_data$logECV)
+  permuted_response <- sample(s$logECV)
   
   # Fit a linear model with permuted data
-  permuted_model <- lm(permuted_response ~ transformed_data$logGS)
+  permuted_model <- lm(permuted_response ~ s$logGS)
   
   # Store the permuted slope coefficient
   permuted_b1[i] <- coef(permuted_model)[2]
@@ -233,7 +234,7 @@ cat("P-value (Percentile Method):", p_value_percentile, "\n")
 
 **Step 8:** Use bootstrapping to generate a 95% CI for your estimate of the slope coefficient using both the percentile method and the theory-based method (i.e., using on the standard deviation of the bootstrapped sampling distribution as an estimate of the standard error). Do these CIs suggest that your slope coefficient is different from zero?
 
-```{r, eval = FALSE, warning = FALSE}
+```{r}
 library(tidyverse)
 f <- "https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/Street_et_al_2017.csv"
 d <- read_csv(f, col_names = TRUE)

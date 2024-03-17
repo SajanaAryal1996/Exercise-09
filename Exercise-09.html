@@ -143,6 +143,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Reproductive Lifespan"</span>,</span>
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Brain Size (ECV)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p><strong>There is linear positive relationship of brain size (ECV) with social group size (Group_size), longevity (Longevity), juvenile period length (Weaning), and reproductive lifespan (Repro_lifespan).</strong></p>
 <p><strong>Step 3</strong>:Derive by hand the ordinary least squares regression coefficients B1 and B0 for ECV as a function of social group size.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
@@ -167,7 +168,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(m <span class="ot">&lt;-</span> <span class="fu">lm</span>(logECV <span class="sc">~</span>logGS, <span class="at">data =</span> s))</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><strong>The results obtained from both the <code>lm()</code> function and manual calculations yield the same result.</strong></p>
+<p><strong>The both <code>lm()</code> function and manual calculations yield the same result.</strong></p>
 <p><strong>Step 5</strong>: Repeat the analysis above for three different major radiations of primates - “catarrhines”, “platyrrhines”, and “strepsirhines”) separately. These are stored in the variable <strong>Taxonomic_group</strong>. Do your regression coefficients differ among groups? How might you determine this?</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
@@ -273,71 +274,138 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the number of permutations</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Store the original slope coefficient</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>b1 <span class="ot">=</span> <span class="fl">0.71</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>original_b1 <span class="ot">&lt;-</span> b1</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize an empty vector to store permuted slope coefficients</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>permuted_b1 <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform permutations and calculate slope coefficients</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)  <span class="co"># Set seed for reproducibility</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Permute the response variable</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  permuted_response <span class="ot">&lt;-</span> <span class="fu">sample</span>(transformed_data<span class="sc">$</span>logECV)</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Fit a linear model with permuted data</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  permuted_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(permuted_response <span class="sc">~</span> transformed_data<span class="sc">$</span>logGS)</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Store the permuted slope coefficient</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  permuted_b1[i] <span class="ot">&lt;-</span> <span class="fu">coef</span>(permuted_model)[<span class="dv">2</span>]</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the p-value using the percentile method</span></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>p_value_percentile <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">abs</span>(permuted_b1) <span class="sc">&gt;=</span> <span class="fu">abs</span>(original_b1)) <span class="sc">/</span> n</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"P-value (Percentile Method):"</span>, p_value_percentile, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Store the original slope coefficient</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>b1 <span class="ot">=</span> <span class="fl">0.71</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>original_b1 <span class="ot">&lt;-</span> b1</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize an empty vector to store permuted slope coefficients</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>permuted_b1 <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform permutations and calculate slope coefficients</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)  <span class="co"># Set seed for reproducibility</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Permute the response variable</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  permuted_response <span class="ot">&lt;-</span> <span class="fu">sample</span>(s<span class="sc">$</span>logECV)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Fit a linear model with permuted data</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  permuted_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(permuted_response <span class="sc">~</span> s<span class="sc">$</span>logGS)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Store the permuted slope coefficient</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  permuted_b1[i] <span class="ot">&lt;-</span> <span class="fu">coef</span>(permuted_model)[<span class="dv">2</span>]</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the p-value using the percentile method</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>p_value_percentile <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">abs</span>(permuted_b1) <span class="sc">&gt;=</span> <span class="fu">abs</span>(original_b1)) <span class="sc">/</span> n</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"P-value (Percentile Method):"</span>, p_value_percentile, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>In a permutation approach, the idea is to randomly shuffle or permute the values of the response variable (in this case, <code>logECV</code>) while keeping the predictor variable (in this case, <code>logGS</code>) unchanged. This process helps generate a null sampling distribution under the assumption that there is no true relationship between the response and predictor variables.In the steps above, we used the percentile</strong> <strong>method which involves comparing the observed statistic (in this case, the absolute value of the original slope coefficient) with the distribution of values obtained from permutations. The proportion of permuted values as extreme or more extreme than the observed value provides the p-value. We obtain the p-value of 0.00 which suggests a significant association between the variables (ECV and group_size).</strong></p>
 <p><strong>Step 8:</strong> Use bootstrapping to generate a 95% CI for your estimate of the slope coefficient using both the percentile method and the theory-based method (i.e., using on the standard deviation of the bootstrapped sampling distribution as an estimate of the standard error). Do these CIs suggest that your slope coefficient is different from zero?</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/Street_et_al_2017.csv"</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(f, <span class="at">col_names =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a> <span class="fu">head</span>(d)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a> <span class="fu">names</span>(d)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>(s <span class="ot">&lt;-</span> d <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>(ECV, Group_size) <span class="sc">%&gt;%</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>     <span class="fu">mutate</span>(<span class="at">logECV =</span> <span class="fu">log</span>(ECV), <span class="at">logGS =</span> <span class="fu">log</span>(Group_size)))</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit linear regression model</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(logECV <span class="sc">~</span> logGS, <span class="at">data =</span> s)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize an empty vector to store bootstrapped slope coefficients</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>bootstrapped_b1 <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform bootstrapping and calculate slope coefficients</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)  <span class="co"># Set seed for reproducibility</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate a bootstrap sample</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  bootstrap_sample <span class="ot">&lt;-</span> s[<span class="fu">sample</span>(<span class="fu">nrow</span>(s), <span class="at">replace =</span> <span class="cn">TRUE</span>), ]</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Fit a linear model with the bootstrap sample</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  bootstrap_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(logECV <span class="sc">~</span> logGS, <span class="at">data =</span> bootstrap_sample)</span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Store the bootstrapped slope coefficient</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  bootstrapped_b1[i] <span class="ot">&lt;-</span> <span class="fu">coef</span>(bootstrap_model)[<span class="dv">2</span>]</span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate 95% CI using the percentile method</span></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>ci_percentile <span class="ot">&lt;-</span> <span class="fu">quantile</span>(bootstrapped_b1, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate 95% CI using the theory-based method</span></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>se_bootstrapped <span class="ot">&lt;-</span> <span class="fu">sd</span>(bootstrapped_b1)</span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>ci_theory <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(bootstrapped_b1) <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_bootstrapped, <span class="fu">mean</span>(bootstrapped_b1) <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_bootstrapped)</span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"95% CI (Percentile Method):"</span>, ci_percentile, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"95% CI (Theory-Based Method):"</span>, ci_theory, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.0     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="st">"https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/Street_et_al_2017.csv"</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(f, <span class="at">col_names =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 301 Columns: 13
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (2): Species, Taxonomic_group
+dbl (11): Social_learning, Research_effort, ECV, Group_size, Gestation, Wean...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">head</span>(d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 13
+  Species       Taxonomic_group Social_learning Research_effort   ECV Group_size
+  &lt;chr&gt;         &lt;chr&gt;                     &lt;dbl&gt;           &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;
+1 Allenopithec… Catarrhini                    0               6  58.0       40  
+2 Allocebus_tr… Catarrhini                    0               6  NA          1  
+3 Alouatta_bel… Platyrrhini                   0              15  52.8        7.4
+4 Alouatta_car… Platyrrhini                   0              45  52.6        8.9
+5 Alouatta_gua… Platyrrhini                   0              37  51.7        7.4
+6 Alouatta_pal… Platyrrhini                   3              79  49.9       13.1
+# ℹ 7 more variables: Gestation &lt;dbl&gt;, Weaning &lt;dbl&gt;, Longevity &lt;dbl&gt;,
+#   Sex_maturity &lt;dbl&gt;, Body_mass &lt;dbl&gt;, Maternal_investment &lt;dbl&gt;,
+#   Repro_lifespan &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">names</span>(d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Species"             "Taxonomic_group"     "Social_learning"    
+ [4] "Research_effort"     "ECV"                 "Group_size"         
+ [7] "Gestation"           "Weaning"             "Longevity"          
+[10] "Sex_maturity"        "Body_mass"           "Maternal_investment"
+[13] "Repro_lifespan"     </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>(s <span class="ot">&lt;-</span> d <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>(ECV, Group_size) <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>     <span class="fu">mutate</span>(<span class="at">logECV =</span> <span class="fu">log</span>(ECV), <span class="at">logGS =</span> <span class="fu">log</span>(Group_size)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 151 × 15
+   Species      Taxonomic_group Social_learning Research_effort   ECV Group_size
+   &lt;chr&gt;        &lt;chr&gt;                     &lt;dbl&gt;           &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;
+ 1 Allenopithe… Catarrhini                    0               6 58.0       40   
+ 2 Alouatta_be… Platyrrhini                   0              15 52.8        7.4 
+ 3 Alouatta_ca… Platyrrhini                   0              45 52.6        8.9 
+ 4 Alouatta_gu… Platyrrhini                   0              37 51.7        7.4 
+ 5 Alouatta_pa… Platyrrhini                   3              79 49.9       13.1 
+ 6 Alouatta_pi… Platyrrhini                   0              25 51.1        5.5 
+ 7 Alouatta_se… Platyrrhini                   0              82 55.2        7.9 
+ 8 Aotus_azarai Platyrrhini                   0              22 20.7        4.1 
+ 9 Aotus_trivi… Platyrrhini                   0              58 16.8        3.15
+10 Arctocebus_… Strepsirhini                  0               1  6.92       1   
+# ℹ 141 more rows
+# ℹ 9 more variables: Gestation &lt;dbl&gt;, Weaning &lt;dbl&gt;, Longevity &lt;dbl&gt;,
+#   Sex_maturity &lt;dbl&gt;, Body_mass &lt;dbl&gt;, Maternal_investment &lt;dbl&gt;,
+#   Repro_lifespan &lt;dbl&gt;, logECV &lt;dbl&gt;, logGS &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit linear regression model</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(logECV <span class="sc">~</span> logGS, <span class="at">data =</span> s)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize an empty vector to store bootstrapped slope coefficients</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>bootstrapped_b1 <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform bootstrapping and calculate slope coefficients</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)  <span class="co"># Set seed for reproducibility</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n) {</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generate a bootstrap sample</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  bootstrap_sample <span class="ot">&lt;-</span> s[<span class="fu">sample</span>(<span class="fu">nrow</span>(s), <span class="at">replace =</span> <span class="cn">TRUE</span>), ]</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Fit a linear model with the bootstrap sample</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  bootstrap_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(logECV <span class="sc">~</span> logGS, <span class="at">data =</span> bootstrap_sample)</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Store the bootstrapped slope coefficient</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>  bootstrapped_b1[i] <span class="ot">&lt;-</span> <span class="fu">coef</span>(bootstrap_model)[<span class="dv">2</span>]</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate 95% CI using the percentile method</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>ci_percentile <span class="ot">&lt;-</span> <span class="fu">quantile</span>(bootstrapped_b1, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate 95% CI using the theory-based method</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>se_bootstrapped <span class="ot">&lt;-</span> <span class="fu">sd</span>(bootstrapped_b1)</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>ci_theory <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">mean</span>(bootstrapped_b1) <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_bootstrapped, <span class="fu">mean</span>(bootstrapped_b1) <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_bootstrapped)</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"95% CI (Percentile Method):"</span>, ci_percentile, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>95% CI (Percentile Method): 0.5770865 0.8253781 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"95% CI (Theory-Based Method):"</span>, ci_theory, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>95% CI (Theory-Based Method): 0.5823355 0.8288691 </code></pre>
+</div>
 </div>
 <ul>
 <li><strong>The 95% CI using Percentile Method are (0.5770865, 0.8253781), and the 95% CI (Theory-Based Method) are (0.5823355, 0.8288691)</strong>. <strong>Since the confidence intervals using both percentile method and theory based method do not include zero, it suggests that the slope coefficient is significantly different from zero. This means that we have evidence to reject the null hypothesis that the true value of the slope coefficient is zero.</strong></li>
