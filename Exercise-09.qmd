@@ -8,15 +8,16 @@ editor: visual
 
 **Step 1:** Do a quick exploratory data analysis where you generate the five-number summary (median, minimum and maximum and 1st and 3rd quartile values), plus mean and standard deviation, for each quantitative variable.
 
-```{r, eval = FALSE, warning = FALSE}
-library(tidyverse)
+```{r,eval = FALSE, warning = FALSE}
 install.packages("skimr")
+library(tidyverse)
 library(skimr)
 f <- "https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/Street_et_al_2017.csv"
 d <- read_csv(f, col_names = TRUE)
-head(d)
-summary_stats <- summary(d)
-print(summary_stats)
+quant_vars <- select_if(d, is.numeric) # Select quantitative variables
+# Perform exploratory data analysis
+skim(quant_vars)
+
 ```
 
 **Step 2:** From this dataset, plot brain size (**ECV**) as a function of social group size (**Group_size**), longevity (**Longevity**), juvenile period length (**Weaning**), and reproductive lifespan (**Repro_lifespan**).
@@ -81,7 +82,7 @@ d <- read_csv(f, col_names = TRUE)
  
 ```
 
-Step 4: Confirm that you get the same results using the `lm()` function.
+**Step 4**: Confirm that you get the same results using the `lm()` function.
 
 ```{r, eval = FALSE, warning = FALSE}
 (m <- lm(logECV ~logGS, data = s))
@@ -94,16 +95,12 @@ summary(m)
 
 ```{r, eval = FALSE, warning = FALSE}
 library(tidyverse)
-
-# Load the dataset
 f <- "https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/Street_et_al_2017.csv"
 d <- read_csv(f, col_names = TRUE)
-
-# Display the first few rows of the dataset and column names
 head(d)
 names(d)
 
-# Create a new dataframe by removing missing variables
+# remove missing variables
 s <- d %>% drop_na(ECV, Group_size) %>%
   mutate(logECV = log(ECV), logGS = log(Group_size))
 
@@ -148,7 +145,7 @@ d <- read_csv(f, col_names = TRUE)
 (s <- d %>% drop_na(ECV, Group_size) %>%
      mutate(logECV = log(ECV), logGS = log(Group_size)))
 
-# Manually calculate standard error, 95% CI, and p-value
+#1 Manually calculate standard error, 95% CI, and p-value
 n <- nrow(s)  #
 (t_value <- qt(0.975, df = n - 2))  # 2-tailed t-value for 95% CI
 
@@ -178,7 +175,7 @@ cat("95% Confidence Interval for Coefficient (B1): [", ci_by_hand[1], ",", ci_by
 cat("P-value for Coefficient (B1):", p_value_by_hand, "\n")
 
 
-# Extract coefficient standard error, 95% CI, and p-value from lm() results
+#2 Extract coefficient standard error, 95% CI, and p-value from lm() results
 
 # Fit linear regression model
 model <- lm(logECV ~ logGS, data = s)
@@ -234,7 +231,7 @@ cat("P-value (Percentile Method):", p_value_percentile, "\n")
 
 **Step 8:** Use bootstrapping to generate a 95% CI for your estimate of the slope coefficient using both the percentile method and the theory-based method (i.e., using on the standard deviation of the bootstrapped sampling distribution as an estimate of the standard error). Do these CIs suggest that your slope coefficient is different from zero?
 
-```{r}
+```{r, eval = FALSE, warning = FALSE}
 library(tidyverse)
 f <- "https://raw.githubusercontent.com/difiore/ada-2024-datasets/main/Street_et_al_2017.csv"
 d <- read_csv(f, col_names = TRUE)
